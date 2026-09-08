@@ -1,15 +1,22 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #d8d0f0;
+  --text-h: #ffffff;
+  --bg: #0a0416;
+  --border: rgba(255, 255, 255, 0.16);
+  --code-bg: rgba(255, 255, 255, 0.05);
+  --accent: #ff2fd0;
+  --accent-bg: rgba(255, 47, 208, 0.16);
+  --accent-border: rgba(255, 47, 208, 0.55);
+  --social-bg: rgba(255, 255, 255, 0.06);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(255, 47, 208, 0.25) 0 10px 30px -5px, rgba(0, 229, 255, 0.15) 0 4px 20px -2px;
+
+  --c1: #ff2fd0;
+  --c2: #ffd60a;
+  --c3: #00e5ff;
+  --c4: #7cff5e;
+  --c5: #7c4dff;
+  --c6: #ff5e5e;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -17,7 +24,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -30,24 +37,28 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+@keyframes bg-drift {
+  0% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
   }
+  50% {
+    background-position: 100% 50%, 0% 30%, 30% 70%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+body {
+  margin: 0;
+  min-height: 100svh;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255, 47, 208, 0.35), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(0, 229, 255, 0.3), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(124, 77, 255, 0.25), transparent 60%);
+  background-size: 180% 180%, 180% 180%, 200% 200%;
+  animation: bg-drift 22s ease-in-out infinite;
 }
 
 #root {
@@ -60,16 +71,15 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-}
-
-body {
-  margin: 0;
+  position: relative;
+  overflow: clip;
+  backdrop-filter: blur(60px);
 }
 
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-h);
 }
 
@@ -108,4 +118,14 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

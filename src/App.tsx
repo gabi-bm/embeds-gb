@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { useState, type ReactElement, type CSSProperties } from 'react'
 import './App.css'
 
 type SlotStatus = 'idle' | 'loading' | 'ready'
@@ -118,6 +118,13 @@ function App() {
 
   return (
     <>
+      <div className="blobs" aria-hidden="true">
+        <span className="blob blob-a" />
+        <span className="blob blob-b" />
+        <span className="blob blob-c" />
+        <span className="blob blob-d" />
+      </div>
+
       <header id="topbar">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
@@ -160,10 +167,14 @@ function App() {
           <p>Click a slot to simulate it mounting and reporting ready.</p>
         </div>
         <div className="slot-grid">
-          {SLOTS.map((slot) => {
+          {SLOTS.map((slot, i) => {
             const status = statuses[slot.id] ?? 'idle'
             return (
-              <article className="slot-card" key={slot.id}>
+              <article
+                className="slot-card"
+                key={slot.id}
+                style={{ '--hue': i * 60 } as CSSProperties}
+              >
                 <div className="slot-top">
                   <span className="slot-icon">{slot.icon}</span>
                   <span className="slot-kind">{slot.kind}</span>
