@@ -9,6 +9,37 @@
       content="Embeds Testing Page — a sandbox for QA-ing third-party embeds."
     />
     <title>Embeds Testing Page</title>
+    <script>
+      (function (w, d, c, n) {
+        w.__batchSdkConfig = c;
+        w.__batchSdkObject = n || "batch";
+        w[w.__batchSdkObject] = w[w.__batchSdkObject] || {
+          q: [],
+          track: function (eventName, props) {
+            w[w.__batchSdkObject].q.push([
+              "track",
+              { eventName: eventName, props: props },
+            ]);
+          },
+          flush: function () {
+            w[w.__batchSdkObject].q.push(["flush"]);
+          },
+        };
+
+        var script = d.createElement("script");
+        script.src = "https://sdk.letsbatch.io/preview/sdk.js";
+        script.async = true;
+        script.onerror = function () {
+          console.error("Failed to load Batch SDK");
+        };
+        d.head.appendChild(script);
+      })(
+        window,
+        document,
+        { partnerId: "f024c28d-59e3-4313-bced-8756de60bb36" },
+        "batch"
+      );
+    </script>
   </head>
   <body>
     <div id="root"></div>
