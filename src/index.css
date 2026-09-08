@@ -1,15 +1,15 @@
 :root {
-  --text: #d8d0f0;
-  --text-h: #ffffff;
-  --bg: #0a0416;
-  --border: rgba(255, 255, 255, 0.16);
-  --code-bg: rgba(255, 255, 255, 0.05);
-  --accent: #ff2fd0;
-  --accent-bg: rgba(255, 47, 208, 0.16);
-  --accent-border: rgba(255, 47, 208, 0.55);
-  --social-bg: rgba(255, 255, 255, 0.06);
+  --text: #5c5270;
+  --text-h: #140f24;
+  --bg: #fffdf9;
+  --border: rgba(20, 15, 36, 0.12);
+  --code-bg: rgba(20, 15, 36, 0.035);
+  --accent: #d600b0;
+  --accent-bg: rgba(214, 0, 176, 0.1);
+  --accent-border: rgba(214, 0, 176, 0.4);
+  --social-bg: rgba(20, 15, 36, 0.04);
   --shadow:
-    rgba(255, 47, 208, 0.25) 0 10px 30px -5px, rgba(0, 229, 255, 0.15) 0 4px 20px -2px;
+    rgba(214, 0, 176, 0.18) 0 10px 30px -5px, rgba(0, 180, 210, 0.14) 0 4px 20px -2px;
 
   --c1: #ff2fd0;
   --c2: #ffd60a;
@@ -24,7 +24,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -54,9 +54,9 @@ body {
   min-height: 100svh;
   background-color: var(--bg);
   background-image:
-    radial-gradient(circle at 15% 20%, rgba(255, 47, 208, 0.35), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(0, 229, 255, 0.3), transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(124, 77, 255, 0.25), transparent 60%);
+    radial-gradient(circle at 15% 20%, rgba(255, 47, 208, 0.22), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(0, 229, 255, 0.2), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(255, 214, 10, 0.18), transparent 60%);
   background-size: 180% 180%, 180% 180%, 200% 200%;
   animation: bg-drift 22s ease-in-out infinite;
 }
