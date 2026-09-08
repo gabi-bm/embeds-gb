@@ -156,7 +156,7 @@ function App() {
 
       <section id="slots">
         <div className="slots-head">
-          <h2>Embed slots</h2>
+          <h2>Embed slots sape</h2>
           <p>Click a slot to simulate it mounting and reporting ready.</p>
         </div>
         <div className="slot-grid">
