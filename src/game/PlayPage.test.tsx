@@ -1,11 +1,22 @@
 // @vitest-environment jsdom
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import PlayPage from './PlayPage.tsx'
 
 function jsonResponse(body: unknown) {
   return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
+}
+
+function renderPlay(slug = 'population') {
+  return render(
+    <MemoryRouter initialEntries={[`/play/${slug}`]}>
+      <Routes>
+        <Route path="/play/:categorySlug" element={<PlayPage />} />
+      </Routes>
+    </MemoryRouter>,
+  )
 }
 
 beforeEach(() => {
@@ -48,13 +59,14 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  cleanup()
   vi.unstubAllGlobals()
 })
 
 describe('PlayPage', () => {
   it('plays a round and advances the streak on a correct guess', async () => {
     const user = userEvent.setup()
-    render(<PlayPage />)
+    renderPlay()
 
     await user.click(screen.getByRole('button', { name: 'Play' }))
 
@@ -70,5 +82,24 @@ describe('PlayPage', () => {
     await user.click(screen.getByRole('button', { name: 'Next round' }))
 
     await screen.findByText('Placeholderia')
+  })
+
+  it("sends the route's category slug when starting a run", async () => {
+    const user = userEvent.setup()
+    renderPlay('gdp')
+
+    await user.click(screen.getByRole('button', { name: 'Play' }))
+
+    await screen.findByText('Testlandia')
+
+    const runsCall = vi
+      .mocked(fetch)
+      .mock.calls.find(([input]) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        return url === '/api/runs'
+      })
+
+    expect(runsCall).toBeDefined()
+    expect(JSON.parse(String(runsCall?.[1]?.body))).toEqual({ categorySlug: 'gdp' })
   })
 })

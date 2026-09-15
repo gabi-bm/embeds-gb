@@ -56,7 +56,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
   })
 
-  it('renders the game for any category slug (slug wiring is a later ticket)', () => {
+  it('renders the game for any category slug', () => {
     render(
       <MemoryRouter initialEntries={['/play/some-other-slug']}>
         <App />

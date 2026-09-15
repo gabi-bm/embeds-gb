@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router'
 import { CountryCard } from './CountryCard.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { useGame } from './useGame.ts'
 
 function PlayPage() {
+  const { categorySlug } = useParams<{ categorySlug: string }>()
   const { state, start, guess, next, nickname, loadLeaderboard } = useGame()
   const [nicknameInput, setNicknameInput] = useState('')
 
@@ -20,7 +22,7 @@ function PlayPage() {
       {state.phase === 'idle' && (
         <section className="panel">
           {state.error && <p className="error">{state.error}</p>}
-          <button type="button" className="primary" onClick={() => void start()}>
+          <button type="button" className="primary" onClick={() => void start(categorySlug)}>
             Play
           </button>
         </section>
@@ -113,7 +115,7 @@ function PlayPage() {
                   <p className="nickname-submitted">Score submitted!</p>
                 )}
 
-                <button type="button" className="primary" onClick={() => void start()}>
+                <button type="button" className="primary" onClick={() => void start(categorySlug)}>
                   Play again
                 </button>
               </div>

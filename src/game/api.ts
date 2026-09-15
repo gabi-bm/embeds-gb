@@ -46,10 +46,12 @@ async function asJson<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>
 }
 
-export function startRun(): Promise<StartRunResponse> {
-  return fetch('/api/runs', { method: 'POST' }).then((res) =>
-    asJson<StartRunResponse>(res),
-  )
+export function startRun(categorySlug?: string): Promise<StartRunResponse> {
+  return fetch('/api/runs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categorySlug }),
+  }).then((res) => asJson<StartRunResponse>(res))
 }
 
 export function submitGuess(runId: string, pick: Side): Promise<GuessResponse> {
