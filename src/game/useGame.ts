@@ -67,11 +67,11 @@ export function useGame() {
     }
   }, [])
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (categorySlug?: string) => {
     busyRef.current = false
     setState((s) => ({ ...initialState, leaderboard: s.leaderboard, phase: 'loading' }))
     try {
-      const res = await startRun()
+      const res = await startRun(categorySlug)
       setState((s) => ({
         ...s,
         phase: 'playing',
