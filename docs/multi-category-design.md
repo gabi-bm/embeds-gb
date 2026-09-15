@@ -50,7 +50,7 @@ Each needs its own `*.data.ts` seed file following the `countries.data.ts` patte
 
 ## Open questions
 
-- **Leaderboard scope**: one leaderboard per category, a single global one, or both? Affects schema and home/play UI.
+- **Leaderboard scope**: ~~one leaderboard per category, a single global one, or both? Affects schema and home/play UI.~~ **Resolved** (issue #5): both — `GET /api/leaderboard` stays global and `GET /api/leaderboard?category=<slug>` narrows to one category; omitting `category` defaults to global because `bestStreak` is dimensionless (a count, not a category-scoped value), so mixing categories there is semantically sound.
 - **Value type**: confirm `numeric`/`bigint` covers all planned categories (GDP in particular).
 - **Category management**: seed-only/static for now, or admin-editable later? Assume static for v1.
 - **Formatting**: does unit formatting live in a shared client util keyed by `category.unit`, or per-category config?
