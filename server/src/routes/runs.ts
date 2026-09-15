@@ -6,13 +6,14 @@ import { evaluateGuess, pickNextItemId, type Side } from '../game/logic.ts'
 
 export const runsRouter = Router()
 
-async function loadPopulationCategoryId(): Promise<number> {
+const DEFAULT_CATEGORY_SLUG = 'population'
+
+async function resolveCategoryId(slug: string): Promise<number | null> {
   const [category] = await db
     .select({ id: categories.id })
     .from(categories)
-    .where(eq(categories.slug, 'population'))
-  if (!category) throw new Error('population category not found')
-  return category.id
+    .where(eq(categories.slug, slug))
+  return category?.id ?? null
 }
 
 async function loadItemIds(categoryId: number): Promise<number[]> {
@@ -29,8 +30,19 @@ async function loadItem(id: number) {
   return { id: item.id, name: item.name, value: Number(item.value) }
 }
 
-runsRouter.post('/', async (_req, res) => {
-  const categoryId = await loadPopulationCategoryId()
+runsRouter.post('/', async (req, res) => {
+  const raw = req.body?.categorySlug ?? DEFAULT_CATEGORY_SLUG
+  if (typeof raw !== 'string') {
+    res.status(400).json({ error: 'categorySlug must be a string' })
+    return
+  }
+
+  const categoryId = await resolveCategoryId(raw)
+  if (categoryId === null) {
+    res.status(404).json({ error: 'category not found' })
+    return
+  }
+
   const ids = await loadItemIds(categoryId)
   if (ids.length < 2) {
     res.status(503).json({ error: 'not enough items seeded' })
