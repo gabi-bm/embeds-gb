@@ -54,18 +54,18 @@ const initialState: GameState = {
   leaderboard: [],
 }
 
-export function useGame() {
+export function useGame(categorySlug?: string) {
   const [state, setState] = useState<GameState>(initialState)
   const busyRef = useRef(false)
 
   const loadLeaderboard = useCallback(async () => {
     try {
-      const { entries } = await fetchLeaderboard()
+      const { entries } = await fetchLeaderboard(categorySlug)
       setState((s) => ({ ...s, leaderboard: entries }))
     } catch {
       // leaderboard is a nice-to-have; a failed fetch shouldn't block the game
     }
-  }, [])
+  }, [categorySlug])
 
   const start = useCallback(async (categorySlug?: string) => {
     busyRef.current = false
