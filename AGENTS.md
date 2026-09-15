@@ -33,6 +33,28 @@ Never run bare `npm run test:watch` or `vite` expecting it to exit — both watc
 - Schema changes: edit `server/src/db/schema.ts`, then `npm run db:generate` to produce a migration in `server/src/db/migrations/` — commit the generated SQL, never hand-edit it.
 - Commits: Conventional Commits (`feat:`, `fix:`, `chore:`). Branch from `main`.
 
+## Adding a category
+
+A category is just rows in two existing tables, not new tables — no migration needed. `categories` has `id, slug (unique), name, unit, description (nullable)`; `items` has `id, categoryId` (FK to `categories.id`), `name, value` (`numeric` column stored/returned as `bigint`).
+
+Steps:
+
+1. Copy `server/src/db/gdp.data.ts` to `server/src/db/<slug>.data.ts`. Export `<NAME>_CATEGORY` (`{ slug, name, unit, description } as const`) and `<NAME>_SEED` (`ReadonlyArray<{ name: string; value: number }>`), keeping the disclaimer JSDoc comment the other dataset files use above the seed array.
+2. In `server/src/db/seed.ts`, import both exports and add one entry to `SEED_DEFINITIONS`: `{ category: <NAME>_CATEGORY, items: <NAME>_SEED }`.
+3. Run `npm run db:seed`. `seedAll()` upserts the category by slug and only inserts items for a category that doesn't already have any, so it's safe to re-run and will only seed the new category.
+4. Per the Definition of Done, consider extending `server/src/db/seed.test.ts` to cover the new category.
+
+That's it — no migration and no client changes are needed beyond the data file and the registry line. `GET /api/categories` picks up any row generically, including an `itemCount` the client uses for empty-state UI; the home page renders any category and shows "Coming soon" for one with fewer than 2 items; the play page (`/play/:categorySlug`) works for any slug; the client's value formatter (`src/game/format.ts`) falls back to `"<magnitude> <unit>"` for any unit it doesn't special-case (only `USD` gets `$` treatment).
+
+Gotchas:
+
+- Values must be whole integers — `seedAll()` runs each one through `BigInt()`, which throws a `RangeError` on a fractional number. This has bitten prior PRs in this project.
+- Use `_`-separated numeric literals (e.g. `1_100_000_000_000`) for readability, matching the existing dataset files.
+- The slug must be URL-safe (lowercase, hyphens) and unique.
+- A category needs at least 2 items to be playable.
+
+See `docs/multi-category-design.md` for historical design context (it intentionally documents the pre-implementation state — don't edit it).
+
 ## Never do this
 
 - `npm run db:reset` outside of your own local/worktree database — it drops and recreates whatever DB `DATABASE_URL` points at.
