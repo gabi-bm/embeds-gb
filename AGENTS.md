@@ -21,6 +21,7 @@ Requires a local Postgres 16 running (e.g. `brew services start postgresql@16`).
 | Typecheck | `npm run typecheck` | ~2 s |
 | Tests (unit + integration, needs the DB from setup) | `npm test` | ~1 s |
 | Build | `npm run build` | ~1 s |
+| Single test file | `npx vitest run <path>` | seconds |
 
 Never run bare `npm run test:watch` or `vite` expecting it to exit — both watch/serve forever.
 
@@ -50,5 +51,5 @@ Never run bare `npm run test:watch` or `vite` expecting it to exit — both watc
 
 - Create with `git worktree add ../embeds-gb-<task> -b <branch>` (worktrees live beside the repo, never inside it).
 - Then `npm install && npm run setup` in the new worktree — the DB name is derived from the worktree's directory name, so it gets its own database automatically.
-- Pick an unused `PORT` per session, e.g. `PORT=4001 npm run dev:server` (and update the corresponding proxy target if you also run the client concurrently).
+- Pick an unused `PORT` per session, e.g. `PORT=4001 npm run dev`. Both the server and the client's dev proxy read the same `PORT` env var, so setting it once covers both.
 - Conflict surface: `server/src/db/migrations/` and `package-lock.json` are what most branches touch — regenerate/rebase rather than hand-merging either.
