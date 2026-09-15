@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
+    },
     "loop-engineering-audit": {
       "source": "eagerworks/skills",
       "sourceType": "github",
@@ -12,6 +18,12 @@
       "sourceType": "github",
       "skillPath": ".agents/skills/plan-mode/SKILL.md",
       "computedHash": "fccffcb9ca28c7b716eb237036b13f394d422b7fbf5d508515f199154713a1fd"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
     }
   }
 }
