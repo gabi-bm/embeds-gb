@@ -73,8 +73,8 @@ beforeEach(() => {
           streak: 1,
           bestStreak: 1,
           revealed: {
-            left: { id: 1, name: 'Testlandia', population: 10 },
-            right: { id: 2, name: 'Mockovia', population: 20 },
+            left: { id: 1, name: 'Testlandia', value: 10 },
+            right: { id: 2, name: 'Mockovia', value: 20 },
           },
           next: {
             left: { id: 2, name: 'Mockovia' },

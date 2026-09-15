@@ -6,7 +6,7 @@ export interface CountryRef {
 }
 
 export interface RevealedCountry extends CountryRef {
-  population: number
+  value: number
 }
 
 export interface StartRunResponse {

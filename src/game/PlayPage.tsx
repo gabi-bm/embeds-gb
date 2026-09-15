@@ -81,9 +81,9 @@ function PlayPage() {
             <div className="cards">
               <CountryCard
                 name={state.left.name}
-                population={
+                value={
                   state.reveal && state.reveal.left.id === state.left.id
-                    ? state.reveal.left.population
+                    ? state.reveal.left.value
                     : undefined
                 }
                 unit={unit}
@@ -100,9 +100,9 @@ function PlayPage() {
               <span className="versus">vs</span>
               <CountryCard
                 name={state.right.name}
-                population={
+                value={
                   state.reveal && state.reveal.right.id === state.right.id
-                    ? state.reveal.right.population
+                    ? state.reveal.right.value
                     : undefined
                 }
                 unit={unit}

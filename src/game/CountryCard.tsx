@@ -2,7 +2,7 @@ import { formatValue } from './format.ts'
 
 interface CountryCardProps {
   name: string
-  population?: number
+  value?: number
   unit?: string
   onClick?: () => void
   disabled?: boolean
@@ -11,7 +11,7 @@ interface CountryCardProps {
 
 export function CountryCard({
   name,
-  population,
+  value,
   unit,
   onClick,
   disabled,
@@ -27,8 +27,8 @@ export function CountryCard({
         </span>
       )}
       <span className="country-name">{name}</span>
-      {population !== undefined && (
-        <span className="country-population">{formatValue(population, unit)}</span>
+      {value !== undefined && (
+        <span className="country-population">{formatValue(value, unit)}</span>
       )}
     </>
   )

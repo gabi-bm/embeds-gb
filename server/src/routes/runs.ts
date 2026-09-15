@@ -94,8 +94,8 @@ runsRouter.post('/:id/guess', async (req, res) => {
 
   const correct = evaluateGuess(left.value, right.value, pick)
   const revealed = {
-    left: { id: left.id, name: left.name, population: left.value },
-    right: { id: right.id, name: right.name, population: right.value },
+    left: { id: left.id, name: left.name, value: left.value },
+    right: { id: right.id, name: right.name, value: right.value },
   }
 
   if (!correct) {
