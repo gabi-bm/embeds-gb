@@ -31,6 +31,13 @@ export interface LeaderboardEntry {
   createdAt: string
 }
 
+export interface Category {
+  id: number
+  slug: string
+  name: string
+  unit: string
+}
+
 async function asJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
@@ -66,5 +73,11 @@ export function fetchLeaderboard(
 ): Promise<{ entries: LeaderboardEntry[] }> {
   return fetch(`/api/leaderboard?limit=${limit}`).then((res) =>
     asJson<{ entries: LeaderboardEntry[] }>(res),
+  )
+}
+
+export function fetchCategories(): Promise<{ categories: Category[] }> {
+  return fetch('/api/categories').then((res) =>
+    asJson<{ categories: Category[] }>(res),
   )
 }

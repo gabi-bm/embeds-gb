@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router'
 import './App.css'
-import HomePage from './HomePage.tsx'
+import HomePage from './game/HomePage.tsx'
 import PlayPage from './game/PlayPage.tsx'
 
 function App() {
