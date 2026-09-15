@@ -1,10 +1,12 @@
 import express from 'express'
+import { categoriesRouter } from './routes/categories.ts'
 import { leaderboardRouter } from './routes/leaderboard.ts'
 import { runsRouter } from './routes/runs.ts'
 
 export const app = express()
 
 app.use(express.json())
+app.use('/api/categories', categoriesRouter)
 app.use('/api/runs', runsRouter)
 app.use('/api/leaderboard', leaderboardRouter)
 
