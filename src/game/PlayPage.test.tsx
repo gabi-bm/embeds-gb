@@ -29,6 +29,13 @@ beforeEach(() => {
       if (url.startsWith('/api/leaderboard')) {
         return jsonResponse({ entries: [] })
       }
+      if (url === '/api/categories') {
+        return jsonResponse({
+          categories: [
+            { id: 1, slug: 'population', name: 'Country population', unit: 'people' },
+          ],
+        })
+      }
       if (url === '/api/runs' && method === 'POST') {
         return jsonResponse({
           runId: 'run-1',
@@ -75,8 +82,8 @@ describe('PlayPage', () => {
 
     await user.click(screen.getByRole('button', { name: /Mockovia/ }))
 
-    await screen.findByText('20')
-    expect(screen.getByText('10')).toBeInTheDocument()
+    await screen.findByText('20 people')
+    expect(screen.getByText('10 people')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByText('1')).toBeInTheDocument())
 
     await user.click(screen.getByRole('button', { name: 'Next round' }))
