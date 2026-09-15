@@ -5,8 +5,8 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import PlayPage from './PlayPage.tsx'
 
-function jsonResponse(body: unknown) {
-  return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
+function jsonResponse(body: unknown, status = 200) {
+  return Promise.resolve(new Response(JSON.stringify(body), { status }))
 }
 
 function renderPlay(slug = 'population') {
@@ -48,7 +48,13 @@ beforeEach(() => {
       if (url === '/api/categories') {
         return jsonResponse({
           categories: [
-            { id: 1, slug: 'population', name: 'Country population', unit: 'people' },
+            {
+              id: 1,
+              slug: 'population',
+              name: 'Country population',
+              unit: 'people',
+              itemCount: 50,
+            },
           ],
         })
       }
@@ -150,5 +156,47 @@ describe('PlayPage', () => {
     renderPlay('not-a-real-category')
 
     await screen.findByText('No scores yet — be the first.')
+  })
+
+  it('shows a friendly empty-category message and an escape hatch when the category has too few items', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        const method = init?.method ?? 'GET'
+
+        if (url.startsWith('/api/leaderboard')) {
+          return jsonResponse({ entries: [] })
+        }
+        if (url === '/api/categories') {
+          return jsonResponse({
+            categories: [
+              {
+                id: 1,
+                slug: 'population',
+                name: 'Country population',
+                unit: 'people',
+                itemCount: 50,
+              },
+            ],
+          })
+        }
+        if (url === '/api/runs' && method === 'POST') {
+          return Promise.resolve(
+            new Response(JSON.stringify({ error: 'not enough items seeded' }), { status: 503 }),
+          )
+        }
+
+        throw new Error(`unexpected fetch: ${method} ${url}`)
+      }),
+    )
+
+    const user = userEvent.setup()
+    renderPlay()
+
+    await user.click(screen.getByRole('button', { name: 'Play' }))
+
+    await screen.findByText(/isn't ready to play yet/)
+    expect(screen.getByRole('link', { name: /Back to categories/ })).toBeInTheDocument()
   })
 })

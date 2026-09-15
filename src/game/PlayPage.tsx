@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { fetchCategories, type Category } from './api.ts'
 import { CountryCard } from './CountryCard.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
@@ -43,7 +43,16 @@ function PlayPage() {
 
       {state.phase === 'idle' && (
         <section className="panel">
-          {state.error && <p className="error">{state.error}</p>}
+          {state.error && (
+            <>
+              <p className="error">
+                {state.error === 'not enough items seeded'
+                  ? "This category isn't ready to play yet — it doesn't have enough items."
+                  : state.error}
+              </p>
+              <Link to="/">Back to categories</Link>
+            </>
+          )}
           <button type="button" className="primary" onClick={() => void start(categorySlug)}>
             Play
           </button>

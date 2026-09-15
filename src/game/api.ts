@@ -36,6 +36,7 @@ export interface Category {
   slug: string
   name: string
   unit: string
+  itemCount: number
 }
 
 async function asJson<T>(res: Response): Promise<T> {
