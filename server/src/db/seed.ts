@@ -4,6 +4,7 @@ import { categories, items } from './schema.ts'
 import { POPULATION_CATEGORY, POPULATION_SEED } from './population.data.ts'
 import { GDP_CATEGORY, GDP_SEED } from './gdp.data.ts'
 import { AREA_CATEGORY, AREA_SEED } from './area.data.ts'
+import { BOX_OFFICE_CATEGORY, BOX_OFFICE_SEED } from './box-office.data.ts'
 
 export interface SeedDefinition {
   category: { slug: string; name: string; unit: string; description: string }
@@ -14,6 +15,7 @@ export const SEED_DEFINITIONS: ReadonlyArray<SeedDefinition> = [
   { category: POPULATION_CATEGORY, items: POPULATION_SEED },
   { category: GDP_CATEGORY, items: GDP_SEED },
   { category: AREA_CATEGORY, items: AREA_SEED },
+  { category: BOX_OFFICE_CATEGORY, items: BOX_OFFICE_SEED },
 ]
 
 export interface SeedResult {
