@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { evaluateGuess, pickNextCountryId } from './logic.ts'
+import { evaluateGuess, pickNextItemId } from './logic.ts'
 
 describe('evaluateGuess', () => {
-  it('is correct when picking left and the left population is bigger', () => {
+  it('is correct when picking left and the left value is bigger', () => {
     expect(evaluateGuess(200, 100, 'left')).toBe(true)
   })
 
-  it('is incorrect when picking left and the right population is bigger', () => {
+  it('is incorrect when picking left and the right value is bigger', () => {
     expect(evaluateGuess(100, 200, 'left')).toBe(false)
   })
 
-  it('is correct when picking right and the right population is bigger', () => {
+  it('is correct when picking right and the right value is bigger', () => {
     expect(evaluateGuess(100, 200, 'right')).toBe(true)
   })
 
-  it('is incorrect when picking right and the left population is bigger', () => {
+  it('is incorrect when picking right and the left value is bigger', () => {
     expect(evaluateGuess(200, 100, 'right')).toBe(false)
   })
 
@@ -24,16 +24,16 @@ describe('evaluateGuess', () => {
   })
 })
 
-describe('pickNextCountryId', () => {
+describe('pickNextItemId', () => {
   it('never returns an excluded id when other candidates exist', () => {
     for (let i = 0; i < 50; i++) {
-      const next = pickNextCountryId([1, 2, 3, 4], [2, 3])
+      const next = pickNextItemId([1, 2, 3, 4], [2, 3])
       expect([1, 4]).toContain(next)
     }
   })
 
   it('falls back to the full pool when everything is excluded', () => {
-    const next = pickNextCountryId([1, 2], [1, 2])
+    const next = pickNextItemId([1, 2], [1, 2])
     expect([1, 2]).toContain(next)
   })
 })

@@ -3,7 +3,7 @@ import request from 'supertest'
 import { afterEach, describe, expect, it } from 'vitest'
 import { app } from '../app.ts'
 import { db } from '../db/client.ts'
-import { countries, runs } from '../db/schema.ts'
+import { categories, items, runs } from '../db/schema.ts'
 import { evaluateGuess } from '../game/logic.ts'
 
 const createdRunIds: string[] = []
@@ -15,12 +15,12 @@ afterEach(async () => {
   }
 })
 
-async function populationOf(countryId: number) {
-  const [country] = await db
-    .select({ population: countries.population })
-    .from(countries)
-    .where(eq(countries.id, countryId))
-  return country!.population
+async function valueOf(itemId: number) {
+  const [item] = await db
+    .select({ value: items.value })
+    .from(items)
+    .where(eq(items.id, itemId))
+  return Number(item!.value)
 }
 
 describe('POST /api/runs and /api/runs/:id/guess', () => {
@@ -28,9 +28,9 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
     const start = await request(app).post('/api/runs').expect(201)
     createdRunIds.push(start.body.runId)
 
-    const leftPop = await populationOf(start.body.left.id)
-    const rightPop = await populationOf(start.body.right.id)
-    const pick = evaluateGuess(leftPop, rightPop, 'left') ? 'left' : 'right'
+    const leftValue = await valueOf(start.body.left.id)
+    const rightValue = await valueOf(start.body.right.id)
+    const pick = evaluateGuess(leftValue, rightValue, 'left') ? 'left' : 'right'
 
     const res = await request(app)
       .post(`/api/runs/${start.body.runId}/guess`)
@@ -46,9 +46,9 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
     const start = await request(app).post('/api/runs').expect(201)
     createdRunIds.push(start.body.runId)
 
-    const leftPop = await populationOf(start.body.left.id)
-    const rightPop = await populationOf(start.body.right.id)
-    const wrongPick = evaluateGuess(leftPop, rightPop, 'left') ? 'right' : 'left'
+    const leftValue = await valueOf(start.body.left.id)
+    const rightValue = await valueOf(start.body.right.id)
+    const wrongPick = evaluateGuess(leftValue, rightValue, 'left') ? 'right' : 'left'
 
     const guessRes = await request(app)
       .post(`/api/runs/${start.body.runId}/guess`)
@@ -71,5 +71,34 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
     expect(
       board.body.entries.some((e: { nickname: string }) => e.nickname === nickname),
     ).toBe(true)
+  })
+
+  it('creates a run wired to the population category and matching items', async () => {
+    const start = await request(app).post('/api/runs').expect(201)
+    createdRunIds.push(start.body.runId)
+
+    const [category] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.slug, 'population'))
+    expect(category).toBeDefined()
+
+    const [run] = await db
+      .select()
+      .from(runs)
+      .where(eq(runs.id, start.body.runId))
+    expect(run!.categoryId).toBe(category!.id)
+
+    const [leftItem] = await db
+      .select({ categoryId: items.categoryId })
+      .from(items)
+      .where(eq(items.id, run!.leftItemId))
+    const [rightItem] = await db
+      .select({ categoryId: items.categoryId })
+      .from(items)
+      .where(eq(items.id, run!.rightItemId))
+
+    expect(leftItem!.categoryId).toBe(category!.id)
+    expect(rightItem!.categoryId).toBe(category!.id)
   })
 })

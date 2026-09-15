@@ -1,43 +1,53 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { Router } from 'express'
 import { db } from '../db/client.ts'
-import { countries, runs } from '../db/schema.ts'
-import { evaluateGuess, pickNextCountryId, type Side } from '../game/logic.ts'
+import { categories, items, runs } from '../db/schema.ts'
+import { evaluateGuess, pickNextItemId, type Side } from '../game/logic.ts'
 
 export const runsRouter = Router()
 
-async function loadCountryIds(): Promise<number[]> {
-  const rows = await db.select({ id: countries.id }).from(countries)
+async function loadPopulationCategoryId(): Promise<number> {
+  const [category] = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.slug, 'population'))
+  if (!category) throw new Error('population category not found')
+  return category.id
+}
+
+async function loadItemIds(categoryId: number): Promise<number[]> {
+  const rows = await db
+    .select({ id: items.id })
+    .from(items)
+    .where(eq(items.categoryId, categoryId))
   return rows.map((r) => r.id)
 }
 
-async function loadCountry(id: number) {
-  const [country] = await db
-    .select()
-    .from(countries)
-    .where(eq(countries.id, id))
-  if (!country) throw new Error(`country ${id} not found`)
-  return country
+async function loadItem(id: number) {
+  const [item] = await db.select().from(items).where(eq(items.id, id))
+  if (!item) throw new Error(`item ${id} not found`)
+  return { id: item.id, name: item.name, value: Number(item.value) }
 }
 
 runsRouter.post('/', async (_req, res) => {
-  const ids = await loadCountryIds()
+  const categoryId = await loadPopulationCategoryId()
+  const ids = await loadItemIds(categoryId)
   if (ids.length < 2) {
-    res.status(503).json({ error: 'not enough countries seeded' })
+    res.status(503).json({ error: 'not enough items seeded' })
     return
   }
 
   const leftId = ids[Math.floor(Math.random() * ids.length)]!
-  const rightId = pickNextCountryId(ids, [leftId])
+  const rightId = pickNextItemId(ids, [leftId])
 
   const [left, right] = await Promise.all([
-    loadCountry(leftId),
-    loadCountry(rightId),
+    loadItem(leftId),
+    loadItem(rightId),
   ])
 
   const [run] = await db
     .insert(runs)
-    .values({ leftCountryId: left.id, rightCountryId: right.id })
+    .values({ categoryId, leftItemId: left.id, rightItemId: right.id })
     .returning()
 
   res.status(201).json({
@@ -66,14 +76,14 @@ runsRouter.post('/:id/guess', async (req, res) => {
   }
 
   const [left, right] = await Promise.all([
-    loadCountry(run.leftCountryId),
-    loadCountry(run.rightCountryId),
+    loadItem(run.leftItemId),
+    loadItem(run.rightItemId),
   ])
 
-  const correct = evaluateGuess(left.population, right.population, pick)
+  const correct = evaluateGuess(left.value, right.value, pick)
   const revealed = {
-    left: { id: left.id, name: left.name, population: left.population },
-    right: { id: right.id, name: right.name, population: right.population },
+    left: { id: left.id, name: left.name, population: left.value },
+    right: { id: right.id, name: right.name, population: right.value },
   }
 
   if (!correct) {
@@ -93,15 +103,15 @@ runsRouter.post('/:id/guess', async (req, res) => {
 
   const streak = run.streak + 1
   const bestStreak = Math.max(run.bestStreak, streak)
-  const ids = await loadCountryIds()
-  const nextId = pickNextCountryId(ids, [run.leftCountryId, run.rightCountryId])
-  const next = await loadCountry(nextId)
+  const ids = await loadItemIds(run.categoryId)
+  const nextId = pickNextItemId(ids, [run.leftItemId, run.rightItemId])
+  const next = await loadItem(nextId)
 
   await db
     .update(runs)
     .set({
-      leftCountryId: right.id,
-      rightCountryId: next.id,
+      leftItemId: right.id,
+      rightItemId: next.id,
       streak,
       bestStreak,
       updatedAt: new Date(),

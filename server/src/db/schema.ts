@@ -8,12 +8,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-export const countries = pgTable('countries', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  population: integer('population').notNull(),
-})
-
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   slug: text('slug').notNull().unique(),
@@ -36,12 +30,15 @@ export type RunStatus = (typeof runStatus)[number]
 
 export const runs = pgTable('runs', {
   id: uuid('id').primaryKey().defaultRandom(),
-  leftCountryId: integer('left_country_id')
+  categoryId: integer('category_id')
     .notNull()
-    .references(() => countries.id),
-  rightCountryId: integer('right_country_id')
+    .references(() => categories.id),
+  leftItemId: integer('left_item_id')
     .notNull()
-    .references(() => countries.id),
+    .references(() => items.id),
+  rightItemId: integer('right_item_id')
+    .notNull()
+    .references(() => items.id),
   streak: integer('streak').notNull().default(0),
   bestStreak: integer('best_streak').notNull().default(0),
   status: text('status', { enum: runStatus }).notNull().default('active'),

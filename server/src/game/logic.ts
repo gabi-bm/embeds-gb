@@ -1,17 +1,17 @@
 export type Side = 'left' | 'right'
 
-/** Does the picked side actually have the bigger population? */
+/** Does the picked side actually have the bigger value? */
 export function evaluateGuess(
-  leftPopulation: number,
-  rightPopulation: number,
+  leftValue: number,
+  rightValue: number,
   pick: Side,
 ): boolean {
-  if (pick === 'left') return leftPopulation > rightPopulation
-  return rightPopulation > leftPopulation
+  if (pick === 'left') return leftValue > rightValue
+  return rightValue > leftValue
 }
 
-/** Pick a random country id different from every id in `excludeIds`. */
-export function pickNextCountryId(
+/** Pick a random item id different from every id in `excludeIds`. */
+export function pickNextItemId(
   allIds: readonly number[],
   excludeIds: readonly number[],
 ): number {
