@@ -6,12 +6,18 @@ import { categories, items } from './schema.ts'
 import { SEED_DEFINITIONS, seedAll, type SeedDefinition } from './seed.ts'
 
 describe('SEED_DEFINITIONS', () => {
-  it('registers exactly the existing population dataset', () => {
-    expect(SEED_DEFINITIONS).toHaveLength(1)
-    const [population] = SEED_DEFINITIONS
-    expect(population.category.slug).toBe('population')
-    expect(population.category.unit).toBe('people')
-    expect(population.items.length).toBeGreaterThan(0)
+  it('registers the population and gdp datasets', () => {
+    expect(SEED_DEFINITIONS.length).toBeGreaterThanOrEqual(2)
+
+    const population = SEED_DEFINITIONS.find((d) => d.category.slug === 'population')
+    const gdp = SEED_DEFINITIONS.find((d) => d.category.slug === 'gdp')
+
+    expect(population).toBeDefined()
+    expect(gdp).toBeDefined()
+    expect(population!.category.unit).toBe('people')
+    expect(gdp!.category.unit).toBe('USD')
+    expect(population!.items.length).toBeGreaterThan(0)
+    expect(gdp!.items.length).toBeGreaterThan(0)
   })
 })
 
@@ -29,7 +35,11 @@ describe('seedAll', () => {
 
     const results = await seedAll()
 
-    expect(results).toEqual([{ slug: 'population', inserted: 0, skipped: true }])
+    expect(results.find((r) => r.slug === 'population')).toEqual({
+      slug: 'population',
+      inserted: 0,
+      skipped: true,
+    })
 
     const populationCategories = await db
       .select({ id: categories.id })
