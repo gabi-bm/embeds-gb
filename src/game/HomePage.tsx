@@ -40,14 +40,24 @@ function HomePage() {
 
       {!loading && !error && categories.length > 0 && (
         <ul className="category-grid">
-          {categories.map((category) => (
-            <li key={category.id}>
-              <Link className="category-card" to={`/play/${category.slug}`}>
-                {category.name}
-                <span className="category-unit">{category.unit}</span>
-              </Link>
-            </li>
-          ))}
+          {categories.map((category) =>
+            category.itemCount < 2 ? (
+              <li key={category.id}>
+                <span className="category-card category-card-disabled">
+                  {category.name}
+                  <span className="category-unit">{category.unit}</span>
+                  <span className="category-status">Coming soon</span>
+                </span>
+              </li>
+            ) : (
+              <li key={category.id}>
+                <Link className="category-card" to={`/play/${category.slug}`}>
+                  {category.name}
+                  <span className="category-unit">{category.unit}</span>
+                </Link>
+              </li>
+            ),
+          )}
         </ul>
       )}
     </main>

@@ -6,8 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import HomePage from './HomePage.tsx'
 
 const CATEGORIES = [
-  { id: 1, slug: 'population', name: 'Country population', unit: 'people' },
-  { id: 2, slug: 'gdp', name: 'Country GDP', unit: 'USD' },
+  { id: 1, slug: 'population', name: 'Country population', unit: 'people', itemCount: 50 },
+  { id: 2, slug: 'gdp', name: 'Country GDP', unit: 'USD', itemCount: 40 },
+  { id: 3, slug: 'empty', name: 'Empty category', unit: 'things', itemCount: 0 },
 ]
 
 function jsonResponse(body: unknown, status = 200) {
@@ -73,6 +74,14 @@ describe('HomePage', () => {
     await user.click(screen.getByRole('link', { name: /Country GDP/ }))
 
     await screen.findByText('play:gdp')
+  })
+
+  it('marks an empty category as coming soon instead of a clickable link', async () => {
+    renderHome()
+
+    await screen.findByText('Empty category')
+    expect(screen.queryByRole('link', { name: /Empty category/ })).not.toBeInTheDocument()
+    expect(screen.getByText('Coming soon')).toBeInTheDocument()
   })
 
   it('shows an error message when the fetch fails', async () => {
