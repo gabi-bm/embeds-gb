@@ -26,7 +26,7 @@ Migration: create `categories`/`items`, backfill `items` from `countries` under 
 ## API changes
 
 - `GET /api/categories` — list for the home page picker.
-- `POST /api/runs` — takes `categoryId`, scopes item selection to it.
+- `POST /api/runs` — takes `categorySlug` (defaults to `population` until issue #8 wires the client through), scopes item selection to it.
 - `POST /api/runs/:id/guess` — unchanged logic, just loads `items` instead of `countries`.
 - `GET /api/leaderboard?category=<slug>` — filtered.
 

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import request from 'supertest'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../app.ts'
 import { db } from '../db/client.ts'
 import { categories, items, runs } from '../db/schema.ts'
@@ -22,6 +22,39 @@ async function valueOf(itemId: number) {
     .where(eq(items.id, itemId))
   return Number(item!.value)
 }
+
+let fixtureCategoryId: number
+let fixtureItemIds: number[] = []
+
+beforeAll(async () => {
+  const [fixtureCategory] = await db
+    .insert(categories)
+    .values({
+      slug: 'test-runs-area',
+      name: 'Test runs area',
+      unit: 'km²',
+      description: null,
+    })
+    .returning()
+  fixtureCategoryId = fixtureCategory!.id
+
+  const insertedItems = await db
+    .insert(items)
+    .values([
+      { categoryId: fixtureCategoryId, name: 'Test runs item A', value: BigInt(100) },
+      { categoryId: fixtureCategoryId, name: 'Test runs item B', value: BigInt(200) },
+      { categoryId: fixtureCategoryId, name: 'Test runs item C', value: BigInt(300) },
+    ])
+    .returning()
+  fixtureItemIds = insertedItems.map((item) => item.id)
+})
+
+afterAll(async () => {
+  for (const id of fixtureItemIds) {
+    await db.delete(items).where(eq(items.id, id))
+  }
+  await db.delete(categories).where(eq(categories.id, fixtureCategoryId))
+})
 
 describe('POST /api/runs and /api/runs/:id/guess', () => {
   it('accepts a correct guess, keeps the run alive and reports the new streak', async () => {
@@ -73,7 +106,7 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
     ).toBe(true)
   })
 
-  it('creates a run wired to the population category and matching items', async () => {
+  it('creates a run wired to the population category by default when no category is sent', async () => {
     const start = await request(app).post('/api/runs').expect(201)
     createdRunIds.push(start.body.runId)
 
@@ -100,5 +133,60 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
 
     expect(leftItem!.categoryId).toBe(category!.id)
     expect(rightItem!.categoryId).toBe(category!.id)
+  })
+
+  it('scopes a run to the requested category', async () => {
+    const start = await request(app)
+      .post('/api/runs')
+      .send({ categorySlug: 'test-runs-area' })
+      .expect(201)
+    createdRunIds.push(start.body.runId)
+
+    const [run] = await db
+      .select()
+      .from(runs)
+      .where(eq(runs.id, start.body.runId))
+
+    expect(run!.categoryId).toBe(fixtureCategoryId)
+    expect(fixtureItemIds).toContain(run!.leftItemId)
+    expect(fixtureItemIds).toContain(run!.rightItemId)
+  })
+
+  it('keeps guesses within the scoped category', async () => {
+    const start = await request(app)
+      .post('/api/runs')
+      .send({ categorySlug: 'test-runs-area' })
+      .expect(201)
+    createdRunIds.push(start.body.runId)
+
+    const leftValue = await valueOf(start.body.left.id)
+    const rightValue = await valueOf(start.body.right.id)
+    const pick = evaluateGuess(leftValue, rightValue, 'left') ? 'left' : 'right'
+
+    const res = await request(app)
+      .post(`/api/runs/${start.body.runId}/guess`)
+      .send({ pick })
+      .expect(200)
+
+    expect(res.body.correct).toBe(true)
+    expect(fixtureItemIds).toContain(res.body.next.right.id)
+  })
+
+  it('404s for an unknown category slug', async () => {
+    const res = await request(app)
+      .post('/api/runs')
+      .send({ categorySlug: 'does-not-exist' })
+      .expect(404)
+
+    expect(typeof res.body.error).toBe('string')
+  })
+
+  it('400s when categorySlug is not a string', async () => {
+    const res = await request(app)
+      .post('/api/runs')
+      .send({ categorySlug: 123 })
+      .expect(400)
+
+    expect(typeof res.body.error).toBe('string')
   })
 })
