@@ -85,21 +85,22 @@ A fresh agent (or, if working solo, a deliberately independent second pass — n
 3. Classify findings as **blocking** (acceptance criteria unmet, a real bug, a security issue, missing required test coverage) or **non-blocking** (style nits, optional follow-ups) — don't block a merge on taste.
 4. Report findings back to the coordinator (or, solo, to yourself) rather than editing code directly — Review verifies, it doesn't implement.
 
-**On blocking findings**: send them back to an Implement pass (same branch, same worktree) to fix, re-run the verify suite, then re-review. Repeat until clean. If a finding turns out to be unfixable within the ticket's own scope (e.g. it actually requires a dependency ticket's work), stop and flag it to the user rather than merging around it or silently expanding scope.
+**On blocking findings**: send them back to an Implement pass (same branch, same worktree) to fix, re-run the verify suite, then re-review. Repeat until clean, but cap it at 2 fix/re-review rounds — if it's still not clean after that, stop and flag it to the user rather than looping indefinitely. Same if a finding turns out to be unfixable within the ticket's own scope (e.g. it actually requires a dependency ticket's work): stop and flag it rather than merging around it or silently expanding scope.
 
 **On a clean review** (no blocking findings): proceed to Merge.
 
 ## Merge phase
 
-Once Review is clean and the PR's checks are green:
+Once Review is clean and the PR's checks are green. Run all of this from the main repo directory, not from inside the ticket's worktree (the worktree is about to be removed, and `gh pr merge`'s branch deletion fails while the branch is checked out elsewhere):
 
 ```
-gh pr checks <PR> --watch   # wait for the `verify` CI check specifically, not just local verify
+cd <main repo directory>
+gh pr checks <PR> --watch --required   # `--required` scopes this to the `verify` check branch protection actually gates on, ignoring non-required checks like Vercel previews
 gh pr merge <PR> --squash --delete-branch
 ```
 
 - Squash merge — one commit per ticket on `main`, matching the PR's Conventional Commit title.
-- `--delete-branch` removes the remote branch. If the branch is still checked out in a local worktree, remove that worktree too (`git worktree remove ../embeds-gb-issue-<N>`) so worktrees don't pile up, per `AGENTS.md`'s worktree conventions.
+- `--delete-branch` removes the remote branch (and the local one, once nothing has it checked out). If the ticket's worktree still exists, remove it too: `git worktree remove ../embeds-gb-issue-<N>` — this isn't an `AGENTS.md` rule, just hygiene so worktrees don't pile up.
 - Merging auto-closes the issue via the PR body's `Closes #<N>`.
 - If CI's `verify` check is red at this point, don't merge — fix it on the branch (back to Implement) and re-review before trying again.
 
@@ -108,7 +109,7 @@ gh pr merge <PR> --squash --delete-branch
 After a successful merge, go back to step 1 of the Plan phase and pick up the next unblocked ticket (lowest-numbered open issue whose dependencies are now closed) — merging the current one may have unblocked others. Keep going until one of:
 
 - No open issues remain, or all remaining open issues have an open (unclosed) dependency.
-- A review finding can't be resolved inside its ticket's scope (stop, flag to the user, don't merge that one — but other, unrelated unblocked tickets can still proceed).
+- A review finding can't be resolved inside its ticket's scope. This is a hard stop for the whole loop, not just that ticket — leave its PR open, flag it to the user, and don't silently re-pick that same ticket next iteration (its dependencies being closed doesn't make it "unblocked" again; it's blocked on user input now).
 - The user asked for a specific single ticket rather than "keep going" — in that case, stop after that ticket's merge and report back instead of picking up another.
 
 ## Edge cases worth pausing on
@@ -116,4 +117,4 @@ After a successful merge, go back to step 1 of the Plan phase and pick up the ne
 - **Uncommitted changes already in the worktree when you start**: don't overwrite them — check `git status` first, same as anywhere else.
 - **The issue is already closed, or a PR already exists for it**: check `gh pr list --search "<N> in:body"` before redoing the work.
 - **The ticket turns out to need more than its stated scope**: don't silently expand it — flag it. It may mean the original ticket breakdown missed something, worth fixing in the tracker, not just in code.
-- **Local `main` behind `origin/main`** (e.g. after a previous loop iteration's merge, or someone else's merge): fast-forward it (`git merge --ff-only origin/main`) before branching the next worktree off it, so the new work starts from what's actually on `main`.
+- **Local `main` behind `origin/main`** (e.g. after a previous loop iteration's merge, or someone else's merge): from the main repo directory, fast-forward it (`git merge --ff-only origin/main`) before branching the next worktree off it, so the new work starts from what's actually on `main`.
