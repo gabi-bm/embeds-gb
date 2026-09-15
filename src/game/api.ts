@@ -36,6 +36,7 @@ export interface Category {
   slug: string
   name: string
   unit: string
+  description: string | null
   itemCount: number
 }
 

@@ -44,7 +44,7 @@ Steps:
 3. Run `npm run db:seed`. `seedAll()` upserts the category by slug and only inserts items for a category that doesn't already have any, so it's safe to re-run and will only seed the new category.
 4. Per the Definition of Done, consider extending `server/src/db/seed.test.ts` to cover the new category.
 
-That's it — no migration and no client changes are needed beyond the data file and the registry line. `GET /api/categories` picks up any row generically, including an `itemCount` the client uses for empty-state UI; the home page renders any category and shows "Coming soon" for one with fewer than 2 items; the play page (`/play/:categorySlug`) works for any slug; the client's value formatter (`src/game/format.ts`) falls back to `"<magnitude> <unit>"` for any unit it doesn't special-case (only `USD` gets `$` treatment).
+That's it — no migration and no client changes are needed beyond the data file and the registry line. `GET /api/categories` picks up any row generically, including an `itemCount` the client uses for empty-state UI and a `description` the play page renders as its question; the home page renders any category and shows "Coming soon" for one with fewer than 2 items; the play page (`/play/:categorySlug`) works for any slug; the client's value formatter (`src/game/format.ts`) falls back to `"<magnitude> <unit>"` for any unit it doesn't special-case (only `USD` gets `$` treatment).
 
 Gotchas:
 

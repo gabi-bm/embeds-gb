@@ -12,6 +12,7 @@ categoriesRouter.get('/', async (_req, res) => {
       slug: categories.slug,
       name: categories.name,
       unit: categories.unit,
+      description: categories.description,
       itemCount: count(items.id),
     })
     .from(categories)

@@ -53,6 +53,7 @@ beforeEach(() => {
               slug: 'population',
               name: 'Country population',
               unit: 'people',
+              description: 'Which thing is bigger, really?',
               itemCount: 50,
             },
           ],
@@ -113,6 +114,20 @@ describe('PlayPage', () => {
     await user.click(screen.getByRole('button', { name: 'Next round' }))
 
     await screen.findByText('Placeholderia')
+  })
+
+  it("renders the active category's description instead of a hardcoded question", async () => {
+    const user = userEvent.setup()
+    renderPlay()
+
+    await user.click(screen.getByRole('button', { name: 'Play' }))
+
+    await screen.findByText('Testlandia')
+
+    await screen.findByText('Which thing is bigger, really?')
+    expect(
+      screen.queryByText('Which of these countries has the bigger population?'),
+    ).toBeNull()
   })
 
   it("sends the route's category slug when starting a run", async () => {
@@ -176,6 +191,7 @@ describe('PlayPage', () => {
                 slug: 'population',
                 name: 'Country population',
                 unit: 'people',
+                description: 'Which thing is bigger, really?',
                 itemCount: 50,
               },
             ],
