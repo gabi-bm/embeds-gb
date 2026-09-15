@@ -15,6 +15,34 @@
       "when": 1789496105475,
       "tag": "0001_high_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789497294728,
+      "tag": "0002_add_item_columns_to_runs",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789497301895,
+      "tag": "0003_backfill_population_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789497321715,
+      "tag": "0004_drop_country_columns_from_runs",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789497334813,
+      "tag": "0005_drop_countries_table",
+      "breakpoints": true
     }
   ]
 }
