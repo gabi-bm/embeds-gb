@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
+import { fetchCategories } from './api.ts'
 import { CountryCard } from './CountryCard.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { useGame } from './useGame.ts'
@@ -8,10 +9,28 @@ function PlayPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>()
   const { state, start, guess, next, nickname, loadLeaderboard } = useGame()
   const [nicknameInput, setNicknameInput] = useState('')
+  const [unit, setUnit] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     void loadLeaderboard()
   }, [loadLeaderboard])
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetchCategories()
+      .then(({ categories }) => {
+        if (cancelled) return
+        setUnit(categories.find((c) => c.slug === categorySlug)?.unit)
+      })
+      .catch(() => {
+        // Ignore: numbers render unsuffixed and the game remains playable.
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [categorySlug])
 
   return (
     <main id="game">
@@ -53,6 +72,7 @@ function PlayPage() {
                     ? state.reveal.left.population
                     : undefined
                 }
+                unit={unit}
                 onClick={state.phase === 'playing' ? () => void guess('left') : undefined}
                 disabled={state.busy}
                 result={
@@ -71,6 +91,7 @@ function PlayPage() {
                     ? state.reveal.right.population
                     : undefined
                 }
+                unit={unit}
                 onClick={state.phase === 'playing' ? () => void guess('right') : undefined}
                 disabled={state.busy}
                 result={
