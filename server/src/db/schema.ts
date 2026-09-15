@@ -1,5 +1,6 @@
 import {
   integer,
+  numeric,
   pgTable,
   serial,
   text,
@@ -11,6 +12,23 @@ export const countries = pgTable('countries', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   population: integer('population').notNull(),
+})
+
+export const categories = pgTable('categories', {
+  id: serial('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  unit: text('unit').notNull(),
+  description: text('description'),
+})
+
+export const items = pgTable('items', {
+  id: serial('id').primaryKey(),
+  categoryId: integer('category_id')
+    .notNull()
+    .references(() => categories.id),
+  name: text('name').notNull(),
+  value: numeric('value', { mode: 'bigint' }).notNull(),
 })
 
 export const runStatus = ['active', 'ended'] as const
