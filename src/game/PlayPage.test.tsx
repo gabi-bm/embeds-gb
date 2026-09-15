@@ -27,6 +27,22 @@ beforeEach(() => {
       const method = init?.method ?? 'GET'
 
       if (url.startsWith('/api/leaderboard')) {
+        const category = new URL(url, 'http://localhost').searchParams.get('category')
+        if (category === 'gdp') {
+          return jsonResponse({
+            entries: [{ nickname: 'GdpAce', bestStreak: 7, createdAt: '2024-01-01T00:00:00.000Z' }],
+          })
+        }
+        if (category === 'population') {
+          return jsonResponse({
+            entries: [{ nickname: 'PopAce', bestStreak: 3, createdAt: '2024-01-02T00:00:00.000Z' }],
+          })
+        }
+        if (category && category !== 'gdp' && category !== 'population') {
+          return Promise.resolve(
+            new Response(JSON.stringify({ error: 'category not found' }), { status: 404 }),
+          )
+        }
         return jsonResponse({ entries: [] })
       }
       if (url === '/api/categories') {
@@ -84,7 +100,9 @@ describe('PlayPage', () => {
 
     await screen.findByText('20 people')
     expect(screen.getByText('10 people')).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByText('1')).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByText('1', { selector: '.streak strong' })).toBeInTheDocument(),
+    )
 
     await user.click(screen.getByRole('button', { name: 'Next round' }))
 
@@ -108,5 +126,29 @@ describe('PlayPage', () => {
 
     expect(runsCall).toBeDefined()
     expect(JSON.parse(String(runsCall?.[1]?.body))).toEqual({ categorySlug: 'gdp' })
+  })
+
+  it('shows the leaderboard scoped to the current category', async () => {
+    renderPlay('gdp')
+
+    await screen.findByText('GdpAce')
+    expect(screen.queryByText('PopAce')).toBeNull()
+
+    const leaderboardCall = vi
+      .mocked(fetch)
+      .mock.calls.find(([input]) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        return url.startsWith('/api/leaderboard')
+      })
+
+    expect(leaderboardCall).toBeDefined()
+    const url = typeof leaderboardCall?.[0] === 'string' ? leaderboardCall[0] : leaderboardCall?.[0]?.toString()
+    expect(url).toContain('category=gdp')
+  })
+
+  it('degrades to the empty state when the category leaderboard 404s', async () => {
+    renderPlay('not-a-real-category')
+
+    await screen.findByText('No scores yet — be the first.')
   })
 })

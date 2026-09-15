@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { fetchCategories } from './api.ts'
+import { fetchCategories, type Category } from './api.ts'
 import { CountryCard } from './CountryCard.tsx'
 import { Leaderboard } from './Leaderboard.tsx'
 import { useGame } from './useGame.ts'
 
 function PlayPage() {
   const { categorySlug } = useParams<{ categorySlug: string }>()
-  const { state, start, guess, next, nickname, loadLeaderboard } = useGame()
+  const { state, start, guess, next, nickname, loadLeaderboard } = useGame(categorySlug)
   const [nicknameInput, setNicknameInput] = useState('')
   const [unit, setUnit] = useState<string | undefined>(undefined)
+  const [category, setCategory] = useState<Category | undefined>(undefined)
 
   useEffect(() => {
     void loadLeaderboard()
@@ -21,7 +22,9 @@ function PlayPage() {
     fetchCategories()
       .then(({ categories }) => {
         if (cancelled) return
-        setUnit(categories.find((c) => c.slug === categorySlug)?.unit)
+        const match = categories.find((c) => c.slug === categorySlug)
+        setUnit(match?.unit)
+        setCategory(match)
       })
       .catch(() => {
         // Ignore: numbers render unsuffixed and the game remains playable.
@@ -145,7 +148,7 @@ function PlayPage() {
         )}
 
       <section className="leaderboard-panel">
-        <h2>Leaderboard</h2>
+        <h2>{category ? `${category.name} leaderboard` : 'Leaderboard'}</h2>
         <Leaderboard entries={state.leaderboard} />
       </section>
     </main>

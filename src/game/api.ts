@@ -71,9 +71,12 @@ export function submitNickname(runId: string, nickname: string): Promise<void> {
 }
 
 export function fetchLeaderboard(
+  categorySlug?: string,
   limit = 10,
 ): Promise<{ entries: LeaderboardEntry[] }> {
-  return fetch(`/api/leaderboard?limit=${limit}`).then((res) =>
+  const params = new URLSearchParams({ limit: String(limit) })
+  if (categorySlug) params.set('category', categorySlug)
+  return fetch(`/api/leaderboard?${params}`).then((res) =>
     asJson<{ entries: LeaderboardEntry[] }>(res),
   )
 }
