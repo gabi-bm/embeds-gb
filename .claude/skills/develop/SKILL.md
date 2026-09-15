@@ -95,9 +95,11 @@ Once Review is clean and the PR's checks are green. Run all of this from the mai
 
 ```
 cd <main repo directory>
-gh pr checks <PR> --watch --required   # `--required` scopes this to the `verify` check branch protection actually gates on, ignoring non-required checks like Vercel previews
+gh pr checks <PR> --watch
 gh pr merge <PR> --squash --delete-branch
 ```
+
+This repo also runs non-required Vercel preview checks alongside `verify`; `gh pr checks --watch` waits on all of them together, which is fine (they're quick), but read the output for `verify` specifically — that's the one branch protection actually gates on. (`gh pr checks --required` looks appealing here but returns "no required checks reported" against this repo with a non-admin token, so don't rely on it.)
 
 - Squash merge — one commit per ticket on `main`, matching the PR's Conventional Commit title.
 - `--delete-branch` removes the remote branch (and the local one, once nothing has it checked out). If the ticket's worktree still exists, remove it too: `git worktree remove ../embeds-gb-issue-<N>` — this isn't an `AGENTS.md` rule, just hygiene so worktrees don't pile up.
