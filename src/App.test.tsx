@@ -17,6 +17,13 @@ beforeEach(() => {
       if (url.startsWith('/api/leaderboard')) {
         return jsonResponse({ entries: [] })
       }
+      if (url === '/api/categories') {
+        return jsonResponse({
+          categories: [
+            { id: 1, slug: 'population', name: 'Country population', unit: 'people' },
+          ],
+        })
+      }
 
       throw new Error(`unexpected fetch: ${url}`)
     }),
@@ -29,14 +36,14 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it('renders the home placeholder at /', () => {
+  it('renders the category picker at /', async () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <App />
       </MemoryRouter>,
     )
 
-    expect(screen.getByText(/pick a category/i)).toBeInTheDocument()
+    await screen.findByText('Country population')
   })
 
   it('renders the game at /play/:categorySlug', () => {

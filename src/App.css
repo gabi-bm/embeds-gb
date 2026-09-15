@@ -1,3 +1,42 @@
+#home {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  text-align: center;
+}
+
+.category-grid {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border, #e2e2e2);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.category-card:hover {
+  border-color: #4f46e5;
+}
+
+.category-unit {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted, #666);
+}
+
 #game {
   max-width: 640px;
   margin: 0 auto;
