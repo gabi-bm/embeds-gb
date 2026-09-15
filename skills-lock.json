@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "loop-engineering-audit": {
+      "source": "eagerworks/skills",
+      "sourceType": "github",
+      "skillPath": "skills/loop-engineering-audit/SKILL.md",
+      "computedHash": "0dcad1187ebd48ea02fe036f9163e297c6dfd1d62dc8378f0cdc12e352416894"
+    },
+    "plan-mode": {
+      "source": "vercel-labs/open-agents",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/plan-mode/SKILL.md",
+      "computedHash": "fccffcb9ca28c7b716eb237036b13f394d422b7fbf5d508515f199154713a1fd"
+    }
+  }
+}

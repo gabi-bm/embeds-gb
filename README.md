@@ -1,35 +1,15 @@
-# React + TypeScript + Vite
+# Higher or Lower
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Guess which country has the bigger population. Streaks and a leaderboard are tracked server-side in Postgres so the client can't cheat.
 
-Currently, two official plugins are available:
+React 19 + Vite on the client, Express 5 + Drizzle ORM on the server, TypeScript throughout.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Running it
 
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run setup   # requires a local Postgres 16 running
+npm run dev     # client on :5173, API on :4000
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+See `AGENTS.md` for the full setup, verification commands, conventions, and worktree/parallel-session notes — that file is the source of truth for how to work in this repo.
