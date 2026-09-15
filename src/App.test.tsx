@@ -20,7 +20,13 @@ beforeEach(() => {
       if (url === '/api/categories') {
         return jsonResponse({
           categories: [
-            { id: 1, slug: 'population', name: 'Country population', unit: 'people' },
+            {
+              id: 1,
+              slug: 'population',
+              name: 'Country population',
+              unit: 'people',
+              description: 'Which country has the bigger population?',
+            },
           ],
         })
       }

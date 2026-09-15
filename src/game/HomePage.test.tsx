@@ -6,9 +6,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import HomePage from './HomePage.tsx'
 
 const CATEGORIES = [
-  { id: 1, slug: 'population', name: 'Country population', unit: 'people', itemCount: 50 },
-  { id: 2, slug: 'gdp', name: 'Country GDP', unit: 'USD', itemCount: 40 },
-  { id: 3, slug: 'empty', name: 'Empty category', unit: 'things', itemCount: 0 },
+  {
+    id: 1,
+    slug: 'population',
+    name: 'Country population',
+    unit: 'people',
+    description: 'Which country has the bigger population?',
+    itemCount: 50,
+  },
+  {
+    id: 2,
+    slug: 'gdp',
+    name: 'Country GDP',
+    unit: 'USD',
+    description: 'Which country has the bigger economy?',
+    itemCount: 40,
+  },
+  {
+    id: 3,
+    slug: 'empty',
+    name: 'Empty category',
+    unit: 'things',
+    description: 'Which of these has more?',
+    itemCount: 0,
+  },
 ]
 
 function jsonResponse(body: unknown, status = 200) {

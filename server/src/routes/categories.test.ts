@@ -17,8 +17,10 @@ describe('GET /api/categories', () => {
     expect(typeof population.id).toBe('number')
     expect(population.name).toBe('Country population')
     expect(population.unit).toBe('people')
+    expect(population.description).toBe('Which country has the bigger population?')
     expect(population.itemCount).toBeGreaterThan(1)
     expect(Object.keys(population).sort()).toEqual([
+      'description',
       'id',
       'itemCount',
       'name',

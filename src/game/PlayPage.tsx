@@ -74,7 +74,9 @@ function PlayPage() {
               <span className="best">best {state.bestStreak}</span>
             </div>
 
-            <p className="question">Which of these countries has the bigger population?</p>
+            <p className="question">
+              {category?.description ?? 'Which of these has the bigger value?'}
+            </p>
 
             <div className="cards">
               <CountryCard
