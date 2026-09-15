@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { cleanup, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App.tsx'
 
@@ -11,64 +11,51 @@ function jsonResponse(body: unknown) {
 beforeEach(() => {
   vi.stubGlobal(
     'fetch',
-    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    vi.fn((input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : input.toString()
-      const method = init?.method ?? 'GET'
 
       if (url.startsWith('/api/leaderboard')) {
         return jsonResponse({ entries: [] })
       }
-      if (url === '/api/runs' && method === 'POST') {
-        return jsonResponse({
-          runId: 'run-1',
-          streak: 0,
-          left: { id: 1, name: 'Testlandia' },
-          right: { id: 2, name: 'Mockovia' },
-        })
-      }
-      if (url === '/api/runs/run-1/guess' && method === 'POST') {
-        return jsonResponse({
-          correct: true,
-          streak: 1,
-          bestStreak: 1,
-          revealed: {
-            left: { id: 1, name: 'Testlandia', population: 10 },
-            right: { id: 2, name: 'Mockovia', population: 20 },
-          },
-          next: {
-            left: { id: 2, name: 'Mockovia' },
-            right: { id: 3, name: 'Placeholderia' },
-          },
-        })
-      }
 
-      throw new Error(`unexpected fetch: ${method} ${url}`)
+      throw new Error(`unexpected fetch: ${url}`)
     }),
   )
 })
 
 afterEach(() => {
+  cleanup()
   vi.unstubAllGlobals()
 })
 
 describe('App', () => {
-  it('plays a round and advances the streak on a correct guess', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+  it('renders the home placeholder at /', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
+    )
 
-    await user.click(screen.getByRole('button', { name: 'Play' }))
+    expect(screen.getByText(/pick a category/i)).toBeInTheDocument()
+  })
 
-    await screen.findByText('Testlandia')
-    expect(screen.getByText('Mockovia')).toBeInTheDocument()
+  it('renders the game at /play/:categorySlug', () => {
+    render(
+      <MemoryRouter initialEntries={['/play/population']}>
+        <App />
+      </MemoryRouter>,
+    )
 
-    await user.click(screen.getByRole('button', { name: /Mockovia/ }))
+    expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
+  })
 
-    await screen.findByText('20')
-    expect(screen.getByText('10')).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByText('1')).toBeInTheDocument())
+  it('renders the game for any category slug (slug wiring is a later ticket)', () => {
+    render(
+      <MemoryRouter initialEntries={['/play/some-other-slug']}>
+        <App />
+      </MemoryRouter>,
+    )
 
-    await user.click(screen.getByRole('button', { name: 'Next round' }))
-
-    await screen.findByText('Placeholderia')
+    expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument()
   })
 })

@@ -1,0 +1,74 @@
+// @vitest-environment jsdom
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import PlayPage from './PlayPage.tsx'
+
+function jsonResponse(body: unknown) {
+  return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
+}
+
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString()
+      const method = init?.method ?? 'GET'
+
+      if (url.startsWith('/api/leaderboard')) {
+        return jsonResponse({ entries: [] })
+      }
+      if (url === '/api/runs' && method === 'POST') {
+        return jsonResponse({
+          runId: 'run-1',
+          streak: 0,
+          left: { id: 1, name: 'Testlandia' },
+          right: { id: 2, name: 'Mockovia' },
+        })
+      }
+      if (url === '/api/runs/run-1/guess' && method === 'POST') {
+        return jsonResponse({
+          correct: true,
+          streak: 1,
+          bestStreak: 1,
+          revealed: {
+            left: { id: 1, name: 'Testlandia', population: 10 },
+            right: { id: 2, name: 'Mockovia', population: 20 },
+          },
+          next: {
+            left: { id: 2, name: 'Mockovia' },
+            right: { id: 3, name: 'Placeholderia' },
+          },
+        })
+      }
+
+      throw new Error(`unexpected fetch: ${method} ${url}`)
+    }),
+  )
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+describe('PlayPage', () => {
+  it('plays a round and advances the streak on a correct guess', async () => {
+    const user = userEvent.setup()
+    render(<PlayPage />)
+
+    await user.click(screen.getByRole('button', { name: 'Play' }))
+
+    await screen.findByText('Testlandia')
+    expect(screen.getByText('Mockovia')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /Mockovia/ }))
+
+    await screen.findByText('20')
+    expect(screen.getByText('10')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('1')).toBeInTheDocument())
+
+    await user.click(screen.getByRole('button', { name: 'Next round' }))
+
+    await screen.findByText('Placeholderia')
+  })
+})
