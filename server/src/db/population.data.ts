@@ -1,3 +1,10 @@
+export const POPULATION_CATEGORY = {
+  slug: 'population',
+  name: 'Country population',
+  unit: 'people',
+  description: 'Which country has the bigger population?',
+} as const
+
 /** Approximate population snapshot (mid-2020s estimates), for gameplay only — not a source of truth for real-world figures. */
 export const POPULATION_SEED: ReadonlyArray<{ name: string; value: number }> = [
   { name: 'India', value: 1_428_000_000 },
