@@ -172,6 +172,28 @@ describe('POST /api/runs and /api/runs/:id/guess', () => {
     expect(fixtureItemIds).toContain(res.body.next.right.id)
   })
 
+  it('reveals guessed items under a `value` key, not `population`', async () => {
+    const start = await request(app)
+      .post('/api/runs')
+      .send({ categorySlug: 'test-runs-area' })
+      .expect(201)
+    createdRunIds.push(start.body.runId)
+
+    const leftValue = await valueOf(start.body.left.id)
+    const rightValue = await valueOf(start.body.right.id)
+    const pick = evaluateGuess(leftValue, rightValue, 'left') ? 'left' : 'right'
+
+    const res = await request(app)
+      .post(`/api/runs/${start.body.runId}/guess`)
+      .send({ pick })
+      .expect(200)
+
+    expect(typeof res.body.revealed.left.value).toBe('number')
+    expect(res.body.revealed.left.value).toBe(leftValue)
+    expect(res.body.revealed.left).not.toHaveProperty('population')
+    expect(res.body.revealed.right).not.toHaveProperty('population')
+  })
+
   it('404s for an unknown category slug', async () => {
     const res = await request(app)
       .post('/api/runs')
